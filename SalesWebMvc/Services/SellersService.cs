@@ -35,10 +35,19 @@ namespace SalesWebMvc.Services
 
         public async Task RemoveAsync(int id)
         {
-            var obj = await _context.Seller.FindAsync(id);
+            try
+            {
+                var obj = await _context.Seller.FindAsync(id);
 
-            _context.Seller.Remove(obj);
-            await _context.SaveChangesAsync();
+                _context.Seller.Remove(obj);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+
+                throw new IntegrityException("O vendedor não pode ser excluído, pois o mesmo possuí vendas vinculas.");
+            }
         }
 
         public async Task UpdateAsync(Seller obj)
