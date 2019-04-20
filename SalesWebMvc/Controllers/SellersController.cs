@@ -22,16 +22,16 @@ namespace SalesWebMvc.Controllers
             _departmentsService = departmentsService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _selersService.FindAll();
+            var list = await _selersService.FindAllAsync();
 
             return View(list);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var departments = _departmentsService.FindAll();
+            var departments = await _departmentsService.FindAllAsync();
             var viewModel = new SellerFormViewModel() { Departments = departments };
 
             return View(viewModel);
@@ -39,28 +39,29 @@ namespace SalesWebMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seller seller)
+        public async Task<IActionResult> Create(Seller seller)
         {
             if (!ModelState.IsValid)
             {
-                var departments = _departmentsService.FindAll();
+                var departments = await _departmentsService.FindAllAsync();
                 var viewModel = new SellerFormViewModel() { Departments = departments };
 
                 return View(viewModel);
             }
 
-            _selersService.Insert(seller);
+            await _selersService.InsertAsync(seller);
+
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
             }
 
-            var obj = _selersService.FindById(id.Value);
+            var obj = await _selersService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
@@ -72,20 +73,20 @@ namespace SalesWebMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _selersService.Remove(id);
+            await _selersService.RemoveAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
             }
 
-            var obj = _selersService.FindById(id.Value);
+            var obj = await _selersService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
@@ -95,21 +96,21 @@ namespace SalesWebMvc.Controllers
             return View(obj);
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
             }
 
-            var obj = _selersService.FindById(id.Value);
+            var obj = await _selersService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Vendedor não encontrado!" });
             }
 
-            List<Department> departments = _departmentsService.FindAll();
+            List<Department> departments = await _departmentsService.FindAllAsync();
 
             SellerFormViewModel viewModel = new SellerFormViewModel() { Seller = obj, Departments = departments };
 
@@ -118,11 +119,11 @@ namespace SalesWebMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
             if (!ModelState.IsValid)
             {
-                List<Department> departments = _departmentsService.FindAll();
+                List<Department> departments = await _departmentsService.FindAllAsync();
                 SellerFormViewModel viewModel = new SellerFormViewModel() { Seller = seller, Departments = departments };
 
                 return View(viewModel);
@@ -135,7 +136,7 @@ namespace SalesWebMvc.Controllers
 
             try
             {
-                _selersService.Update(seller);
+                await _selersService.UpdateAsync(seller);
                 return RedirectToAction(nameof(Index));
             }
             catch (ApplicationException e)
